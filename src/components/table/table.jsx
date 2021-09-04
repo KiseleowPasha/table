@@ -6,22 +6,50 @@ function Table() {
   const [values, setValues] = useState(
     sessionStorage.values ? JSON.parse(sessionStorage.values) : []
   );
-
+  const [sortedById, setSortedById] = useState(false);
+  const [sortedByValue, setSortedByValue] = useState(false);
   useEffect(() => sessionStorage.setItem("values", JSON.stringify(values)));
 
   const onPressEnter = ({ code }) => {
     if (currentValue === "") return;
     if (code === "Enter") {
-      setValues([...values, { id: values.length + 1, value: currentValue }]);
+      sortedById
+        ? setValues([{ id: values.length + 1, value: currentValue }, ...values])
+        : setValues([
+            ...values,
+            { id: values.length + 1, value: currentValue },
+          ]);
       setCurrentValue("");
     }
   };
 
   const onChangeInput = ({ target }) => setCurrentValue(target.value);
 
+  const sortValuesById = () => {
+    const sortedArray = values.sort((a, b) =>
+      sortedById ? a.id - b.id : b.id - a.id
+    );
+    setValues([...sortedArray]);
+    setSortedById(!sortedById);
+  };
+
+  const sortValuesByValues = () => {
+    const sortedArray = values.sort((a, b) =>
+      sortedByValue
+        ? (a.value > b.value) - (a.value < b.value)
+        : (a.value < b.value) - (a.value > b.value)
+    );
+    setValues([...sortedArray]);
+    setSortedByValue(!sortedByValue);
+  };
+
   const deleteItem = (id) => {
     const intermediateArray = values.filter((value) => value.id !== id);
-    intermediateArray.forEach((el, index) => (el.id = index + 1));
+    sortedById
+      ? intermediateArray.forEach(
+          (el, index) => (el.id = intermediateArray.length - index)
+        )
+      : intermediateArray.forEach((el, index) => (el.id = index + 1));
     setValues(intermediateArray);
   };
 
@@ -30,8 +58,8 @@ function Table() {
       <table className="table">
         <thead>
           <tr>
-            <td>ID</td>
-            <td>Значение</td>
+            <td onClick={sortValuesById}>ID</td>
+            <td onClick={sortValuesByValues}>Значение</td>
             <td>Удалить</td>
           </tr>
         </thead>
