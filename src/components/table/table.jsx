@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./table.css";
 
 function Table() {
@@ -7,7 +7,7 @@ function Table() {
     sessionStorage.values ? JSON.parse(sessionStorage.values) : []
   );
 
-  sessionStorage.setItem("values", JSON.stringify(values));
+  useEffect(() => sessionStorage.setItem("values", JSON.stringify(values)));
 
   const onPressEnter = ({ code }) => {
     if (currentValue === "") return;
@@ -20,12 +20,9 @@ function Table() {
   const onChangeInput = ({ target }) => setCurrentValue(target.value);
 
   const deleteItem = (id) => {
-    const intermediateArray = JSON.parse(sessionStorage.values).filter(
-      (value) => value.id !== id
-    );
+    const intermediateArray = values.filter((value) => value.id !== id);
     intermediateArray.forEach((el, index) => (el.id = index + 1));
-    sessionStorage.setItem("values", JSON.stringify(intermediateArray));
-    setValues(JSON.parse(sessionStorage.values));
+    setValues(intermediateArray);
   };
 
   return (
@@ -35,6 +32,7 @@ function Table() {
           <tr>
             <td>ID</td>
             <td>Значение</td>
+            <td>Удалить</td>
           </tr>
         </thead>
         <tbody>
